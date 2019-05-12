@@ -57,6 +57,7 @@ namespace BarcodeReader.Android.Fragments
             this.AddBarItem(new BarItem("BtnEmail", "Send Email") { ShowAsAction = ShowAsAction.Never });
             this.AddBarItem(new BarItem("BtnClearData", "Clear Data") { ShowAsAction = ShowAsAction.Never });
 
+            
             this.ToolbarSettings.IsVisible = false;
         }
         #endregion

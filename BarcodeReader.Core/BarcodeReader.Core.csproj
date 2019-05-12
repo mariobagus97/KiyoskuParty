@@ -70,7 +70,6 @@
     <Compile Include="ViewModels\GeneralSettingsViewModel.cs" />
     <Compile Include="ViewModels\ScanQrViewModel.cs" />
     <Compile Include="ViewModels\ListGuestViewModel.cs" />
-    <Compile Include="ViewModels\MyEditorViewModelBase.cs" />
     <Compile Include="ViewModels\PeripheralDeviceViewModel.cs" />
     <Compile Include="ViewModels\SettingsViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />

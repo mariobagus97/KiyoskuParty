@@ -4,7 +4,6 @@ using Intersoft.Crosslight;
 using Intersoft.Crosslight.Services.Connectivity;
 using Intersoft.Crosslight.Services.Connectivity.Peripheral;
 using Intersoft.Crosslight.ViewModels;
-using System.Collections.Generic;
 
 namespace BarcodeReader.Core.ViewModels
 {

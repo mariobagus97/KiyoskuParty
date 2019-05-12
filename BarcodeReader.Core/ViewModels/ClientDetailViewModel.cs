@@ -7,7 +7,6 @@ using Intersoft.Crosslight.Data.ComponentModel;
 using Intersoft.Crosslight.Input;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace BarcodeReader.ViewModels
 {

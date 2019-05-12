@@ -26,15 +26,15 @@ namespace BarcodeReader.Core.BindingProviders
 
             itemBinding.AddBinding("NumberLabel", BindableProperties.TextProperty, "NumberLabel");
 
-
-
-
             this.AddBinding("TableView", BindableProperties.ItemsSourceProperty, "Items");
             this.AddBinding("TableView", BindableProperties.ItemTemplateBindingProperty, itemBinding, true);
             this.AddBinding("TableView", BindableProperties.SelectedItemProperty, "SelectedItem", BindingMode.TwoWay);
             this.AddBinding("TableView", BindableProperties.SelectedItemsProperty, "SelectedItems", BindingMode.TwoWay);
             
+
             this.AddBinding("BtnEmail", BindableProperties.CommandProperty, "EmailCommand");
+            //this.AddBinding("BtnEmail", BindableProperties.IsVisibleProperty, "EmailActive", BindingMode.TwoWay);
+
             this.AddBinding("BtnClearData", BindableProperties.CommandProperty, "BtnClearDataCommand");
             
         }

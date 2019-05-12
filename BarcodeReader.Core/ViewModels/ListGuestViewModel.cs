@@ -27,6 +27,8 @@ namespace BarcodeReader.Core.ViewModels
 
             this.EmailCommand = new DelegateCommand(ExecuteSendEmail);
             this.BtnClearDataCommand = new DelegateCommand(ExecuteClearData);
+
+           // this.EmailActive = false;
         }
         #endregion
 
@@ -53,6 +55,23 @@ namespace BarcodeReader.Core.ViewModels
             }
         }
 
+        //private bool _emailActive;
+        //public bool EmailActive
+        //{
+        //    get
+        //    {
+        //        return _emailActive;
+        //    }
+        //    set
+        //    {
+        //        if (_emailActive != value)
+        //        {
+        //            _emailActive = value;
+        //            OnPropertyChanged("EmailActive");
+        //        }
+        //    }
+        //}
+
         public DelegateCommand EmailCommand { get; set; }
         public DelegateCommand BtnClearDataCommand { get; set; }
 
@@ -78,18 +97,21 @@ namespace BarcodeReader.Core.ViewModels
             }
             this.Items = client2;
         }
+        
 
-        public  void ExecuteClearData (object parameter)
+        public async void ExecuteClearData (object parameter)
         {
             count++;
             if (count == 3)
             {
-
-                string[] actions = new string[]
-        {
+                IList<Guest> guest = await guestRepo.GetAllAsync();
+                if (guest.Count != 0)
+                { 
+                    string[] actions = new string[]
+            {
             "No",
             "Yes"
-        };
+            };
                 this.MessagePresenter.Show("Data deleted cannot be returned, sure?", "Confirmation", actions, (resultIndex) =>
                 {
                     string response = actions[resultIndex].ToString();
@@ -111,6 +133,12 @@ namespace BarcodeReader.Core.ViewModels
                     }
 
                 });
+                
+            }
+                else
+                {
+                    this.ToastPresenter.Show("No more data can be deleted");
+                }
                 count = 0;
             }
         }
@@ -122,42 +150,50 @@ namespace BarcodeReader.Core.ViewModels
                 count++;
                 if (count == 3)
                 {
-                    ILocalStorageService storageService = ServiceProvider.GetService<ILocalStorageService>();
-
-                    bool check = storageService.IsFileExisted("selfpartys.csv", LocalFolderKind.Data);
-
-                    if (check == false)
+                    IList<Guest> guest = await guestRepo.GetAllAsync();
+                    if (guest.Count != 0)
                     {
-                        await storageService.WriteTextFileAsync("Name,TableType,TableNumber,FirstScan,LastScan\n", "selfpartys.csv", LocalFolderKind.Data, FileWriteMode.Append);
-                    }
-                    
-                    if (storageService != null)
-                    {
-                        string csv;
-                        IList<Guest> guest = await guestRepo.GetAllAsync();
-                        foreach (var loop in guest)
+
+                        ILocalStorageService storageService = ServiceProvider.GetService<ILocalStorageService>();
+
+                        bool check = storageService.IsFileExisted("selfpartys.csv", LocalFolderKind.Data);
+
+                        if (check == false)
                         {
-                            string[] splitData = loop.TableNumber.Split(new string[] { "\r" }, StringSplitOptions.RemoveEmptyEntries);
-                            loop.TableNumber = splitData[0];
-
-                            csv = loop.Name + "," + loop.TableType + "," + loop.TableNumber + "," + loop.FirstScan + "," + loop.LastScan + "\n";
-
-                            await storageService.WriteTextFileAsync(csv, "selfpartys.csv", LocalFolderKind.Data, FileWriteMode.Append);
+                            await storageService.WriteTextFileAsync("Name,TableType,TableNumber,FirstScan,LastScan\n", "selfpartys.csv", LocalFolderKind.Data, FileWriteMode.Append);
                         }
-                        byte[] datas = await storageService.ReadFileAsync("selfpartys.csv", LocalFolderKind.Data);
 
-                        ObservableCollection<MailAttachment> mailAttachments = new ObservableCollection<MailAttachment>();
-                        mailAttachments.Add(new MailAttachment("selfpartys.csv", "text/plain", datas));
-                        string body = "result";
+                        if (storageService != null)
+                        {
+                            string csv;
+                            foreach (var loop in guest)
+                            {
+                                string[] splitData = loop.TableNumber.Split(new string[] { "\r" }, StringSplitOptions.RemoveEmptyEntries);
+                                loop.TableNumber = splitData[0];
 
-                        MailMessage mailMessage = new MailMessage("mariobagus1903@gmail.com", "Log Backup", body, true, mailAttachments);
-                        this.MobileService.Mail.ComposeMail(mailMessage, null);
+                                csv = loop.Name + "," + loop.TableType + "," + loop.TableNumber + "," + loop.FirstScan + "," + loop.LastScan + "\n";
 
+                                await storageService.WriteTextFileAsync(csv, "selfpartys.csv", LocalFolderKind.Data, FileWriteMode.Append);
+                            }
+                            byte[] datas = await storageService.ReadFileAsync("selfpartys.csv", LocalFolderKind.Data);
+
+                            ObservableCollection<MailAttachment> mailAttachments = new ObservableCollection<MailAttachment>();
+                            mailAttachments.Add(new MailAttachment("selfpartys.csv", "text/plain", datas));
+                            string body = "result";
+
+                            MailMessage mailMessage = new MailMessage("EmailTarget@Email.com", "Log Backup", body, true, mailAttachments);
+                            this.MobileService.Mail.ComposeMail(mailMessage, null);
+
+                        }
+                        
+                    }
+                    else
+                    {
+                        this.ToastPresenter.Show("Request fail, because data is empty");
                     }
                     count = 0;
                 }
             }
-
             catch (Exception ex)
             {
                 this.MessagePresenter.Show(ex.Message);
