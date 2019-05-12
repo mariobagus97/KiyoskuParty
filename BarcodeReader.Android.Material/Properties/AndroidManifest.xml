@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="1" android:versionName="1.0" package="KiyoskuParty.android" android:installLocation="preferExternal">
+	<uses-sdk android:minSdkVersion="22" android:targetSdkVersion="27" />
+	<application android:label="KiyoskuParty" android:theme="@style/Theme.Crosslight.Material.Light" android:icon="@drawable/icon">
+		<activity android:name=".DetailActivity" android:screenOrientation="landscape" />
+	</application>
+	<uses-permission android:name="android.permission.VIBRATE" />
+	<uses-permission android:name="android.permission.FLASHLIGHT" />
+	<uses-permission android:name="android.permission.CAMERA" />
+	<uses-permission android:name="android.permission.INTERNET" />
+	<uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+	<uses-permission android:name="android.permission.BLUETOOTH" />
+</manifest>

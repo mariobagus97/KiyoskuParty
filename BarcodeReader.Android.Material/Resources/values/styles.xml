@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<resources>
+  
+  <style name="Theme.Splash" parent="android:Theme">
+    <item name="android:windowBackground">@drawable/splash_kiyosku</item>
+    <item name="android:windowNoTitle">true</item>
+  </style>
+
+  <style name="InvisibleFocusHolder">
+    <item name="android:layout_width">0dp</item>
+    <item name="android:layout_height">0dp</item>
+    <item name="android:focusable">true</item>
+    <item name="android:focusableInTouchMode">true</item>
+    <item name="android:inputType">none</item>
+  </style>
+  
+</resources>
