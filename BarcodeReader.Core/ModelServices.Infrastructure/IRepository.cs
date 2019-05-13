@@ -12,9 +12,11 @@ namespace BarcodeReader.Core.ModelServices.Infrastructure
 
         Task<IList<T>> GetAllAsync();
         Task<T> GetSingleAsync();
+        //Task<int> ClearTableAsync(T entity);
 
         Task<int> InsertAsync(T entity);
         Task<int> UpdateAsync(T entity);
         Task<int> DeleteAsync(T entity);
+
     }
 }

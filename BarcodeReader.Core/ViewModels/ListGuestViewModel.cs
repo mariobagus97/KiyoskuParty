@@ -1,5 +1,6 @@
 ﻿using BarcodeReader.Core.Models;
 using BarcodeReader.Core.ModelServices;
+using BarcodeReader.Infrastructure;
 using Intersoft.Crosslight;
 using Intersoft.Crosslight.Data.SQLite;
 using Intersoft.Crosslight.Input;
@@ -28,7 +29,7 @@ namespace BarcodeReader.Core.ViewModels
             this.EmailCommand = new DelegateCommand(ExecuteSendEmail);
             this.BtnClearDataCommand = new DelegateCommand(ExecuteClearData);
 
-           // this.EmailActive = false;
+             this.StorageService = ServiceProvider.GetService<ILocalStorageService>();
         }
         #endregion
 
@@ -40,7 +41,13 @@ namespace BarcodeReader.Core.ViewModels
         #endregion
 
         #region properties
-        public GuestRepository guestRepo = new GuestRepository();
+
+        public ILocalStorageService StorageService { get; set; }
+
+        public IGuestRepository GuestRepository
+        {
+            get { return Container.Current.Resolve<IGuestRepository>(); }
+        }
 
         public string NumberLabel
         {
@@ -54,24 +61,6 @@ namespace BarcodeReader.Core.ViewModels
                 }
             }
         }
-
-        //private bool _emailActive;
-        //public bool EmailActive
-        //{
-        //    get
-        //    {
-        //        return _emailActive;
-        //    }
-        //    set
-        //    {
-        //        if (_emailActive != value)
-        //        {
-        //            _emailActive = value;
-        //            OnPropertyChanged("EmailActive");
-        //        }
-        //    }
-        //}
-
         public DelegateCommand EmailCommand { get; set; }
         public DelegateCommand BtnClearDataCommand { get; set; }
 
@@ -87,7 +76,7 @@ namespace BarcodeReader.Core.ViewModels
             base.Navigated(parameter);
             
             List<Guest> client2 = new List<Guest>();
-            IList<Guest> client = await guestRepo.GetAllAsync(); 
+            IList<Guest> client = await GuestRepository.GetAllAsync(); 
             
             foreach (var example in client)
             {
@@ -104,7 +93,7 @@ namespace BarcodeReader.Core.ViewModels
             count++;
             if (count == 3)
             {
-                IList<Guest> guest = await guestRepo.GetAllAsync();
+                IList<Guest> guest = await GuestRepository.GetAllAsync();
                 if (guest.Count != 0)
                 { 
                     string[] actions = new string[]
@@ -120,20 +109,12 @@ namespace BarcodeReader.Core.ViewModels
                         Db.ClearTableAsync<Guest>();
                         this.Items = new List<Guest>();
 
-                        ILocalStorageService storageService = ServiceProvider.GetService<ILocalStorageService>();
-
-                        bool check = storageService.IsFileExisted("selfpartys.csv", LocalFolderKind.Data);
-
-                        if (check == true)
-                        {
-                            storageService.DeleteFileAsync("selfpartys.csv", LocalFolderKind.Data);
-                        }
+                        if (CheckFileCsv())
+                             this.StorageService.DeleteFileAsync("selfpartys.csv", LocalFolderKind.Data);
 
                         this.ToastPresenter.Show("All data has been deleted", null, null, ToastDisplayDuration.Immediate, ToastGravity.Bottom);
                     }
-
                 });
-                
             }
                 else
                 {
@@ -150,20 +131,15 @@ namespace BarcodeReader.Core.ViewModels
                 count++;
                 if (count == 3)
                 {
-                    IList<Guest> guest = await guestRepo.GetAllAsync();
+                    IList<Guest> guest = await GuestRepository.GetAllAsync();
                     if (guest.Count != 0)
                     {
+                        if (CheckFileCsv())
+                            await this.StorageService.DeleteFileAsync("selfpartys.csv", LocalFolderKind.Data);
+                        
+                        await this.StorageService.WriteTextFileAsync("Name,TableType,TableNumber,FirstScan,LastScan\n", "selfpartys.csv", LocalFolderKind.Data, FileWriteMode.Append);
 
-                        ILocalStorageService storageService = ServiceProvider.GetService<ILocalStorageService>();
-
-                        bool check = storageService.IsFileExisted("selfpartys.csv", LocalFolderKind.Data);
-
-                        if (check == false)
-                        {
-                            await storageService.WriteTextFileAsync("Name,TableType,TableNumber,FirstScan,LastScan\n", "selfpartys.csv", LocalFolderKind.Data, FileWriteMode.Append);
-                        }
-
-                        if (storageService != null)
+                        if (this.StorageService != null)
                         {
                             string csv;
                             foreach (var loop in guest)
@@ -173,9 +149,9 @@ namespace BarcodeReader.Core.ViewModels
 
                                 csv = loop.Name + "," + loop.TableType + "," + loop.TableNumber + "," + loop.FirstScan + "," + loop.LastScan + "\n";
 
-                                await storageService.WriteTextFileAsync(csv, "selfpartys.csv", LocalFolderKind.Data, FileWriteMode.Append);
+                                await this.StorageService.WriteTextFileAsync(csv, "selfpartys.csv", LocalFolderKind.Data, FileWriteMode.Append);
                             }
-                            byte[] datas = await storageService.ReadFileAsync("selfpartys.csv", LocalFolderKind.Data);
+                            byte[] datas = await this.StorageService.ReadFileAsync("selfpartys.csv", LocalFolderKind.Data);
 
                             ObservableCollection<MailAttachment> mailAttachments = new ObservableCollection<MailAttachment>();
                             mailAttachments.Add(new MailAttachment("selfpartys.csv", "text/plain", datas));
@@ -183,7 +159,6 @@ namespace BarcodeReader.Core.ViewModels
 
                             MailMessage mailMessage = new MailMessage("EmailTarget@Email.com", "Log Backup", body, true, mailAttachments);
                             this.MobileService.Mail.ComposeMail(mailMessage, null);
-
                         }
                         
                     }
@@ -201,6 +176,12 @@ namespace BarcodeReader.Core.ViewModels
             
         }
 
+        public bool CheckFileCsv()
+        {
+            bool check = this.StorageService.IsFileExisted("selfpartys.csv", LocalFolderKind.Data);
+            return check;
+        }
+        
         #endregion
 
     }

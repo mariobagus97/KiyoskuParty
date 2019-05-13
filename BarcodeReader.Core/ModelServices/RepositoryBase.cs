@@ -73,5 +73,19 @@ namespace BarcodeReader.Core.ModelServices
         {
             return this.Db.UpdateAsync(entity);
         }
+
+        //public async void ClearTableAsync(T entity)
+        //{
+        //   await this.Db.ClearTableAsync<entity>();
+
+
+        //  //  Db.ClearTableAsync<Guest>();
+        //}
+
+        //public virtual Task<int> ClearTableAsync(T entity)
+        //{
+        //    T a = new T();
+        //    return this.Db.ClearTableAsync<T>();
+        //}
     }
 }
